@@ -1,32 +1,204 @@
-.App {
-  text-align: center;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
+:root {
+  --bg: #111318;
+  --surface: #1c1f27;
+  --border: #2c2f3a;
+  --text: #f0f0f0;
+  --muted: #7a7d8a;
+  --accent: #e05252;
+  --green: #27ae60;
+  --green-dark: #1e8449;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
   display: flex;
   flex-direction: column;
+  height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px 16px env(safe-area-inset-bottom, 16px);
+}
+
+/* Header */
+.app-header {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+
+.app-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Config */
+.config {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.label-toggle {
+  display: flex;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 11px 0;
+  background: var(--surface);
+  border: none;
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.toggle-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.config-row {
+  display: flex;
+  gap: 10px;
+}
+
+.config-label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.config-label span {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.config-label input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 1.4rem;
+  font-weight: 700;
+  padding: 10px 8px;
+  width: 100%;
+  text-align: center;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.config-label input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Sequence */
+.sequence {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 0;
+  overflow-y: auto;
+}
+
+.chip {
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  width: 68px;
+  height: 68px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  user-select: none;
 }
 
-.App-link {
-  color: #61dafb;
+/* Actions */
+.actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.btn-regen,
+.btn-start {
+  border-radius: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-regen:active,
+.btn-start:active {
+  transform: scale(0.97);
+}
+
+.btn-regen {
+  flex: 1;
+  padding: 18px 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.btn-start {
+  flex: 2;
+  padding: 18px 0;
+  background: var(--green);
+  color: #fff;
+  font-size: 1.25rem;
+}
+
+.btn-regen:disabled,
+.btn-start:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-start:disabled {
+  background: #444;
 }
