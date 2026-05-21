@@ -26,7 +26,7 @@ A mobile-first web app that generates randomized target engagement sequences for
 |---|-------------|
 | F6 | A **Start** button initiates the drill with a random delay of **4–5 seconds**, then emits an audible start signal |
 | F7 | The delay is randomized on each press (uniform random within the 4–5 s window) to prevent anticipation |
-| F8 | The start signal mimics a shooting timer beep: a square wave at ~2700 Hz (piezo buzzer frequency used by PACT/CED timers), 180 ms sustain with a 40 ms linear decay, generated as a WAV buffer in memory — no external audio file or network request required |
+| F8 | The start signal plays `shot-timer-beep.mp3` — a recording of an actual shot timer beep, bundled with the app at build time |
 | F9 | While waiting for the beep, the UI indicates the drill is in progress (e.g., button disabled or shows "Ready…") |
 | F10 | The Start button is large and easy to tap with one hand |
 
@@ -77,7 +77,7 @@ A mobile-first web app that generates randomized target engagement sequences for
 | T2 | Works offline after initial load |
 | T3 | Responsive layout using viewport units or flexbox/grid |
 | T4 | No external runtime dependencies required (vanilla JS acceptable) |
-| T5 | Start signal generated as a WAV blob in memory (programmatic square wave via `DataView`) played through an `Audio` element — no external audio files, no network requests |
+| T5 | Start signal played from `src/assets/shot-timer-beep.mp3`, bundled by the build tool — no runtime network requests |
 
 ---
 

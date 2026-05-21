@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react'
 import './App.css'
+import beepSound from './assets/shot-timer-beep.mp3'
 
 function shuffle(arr) {
   const a = arr.slice()
@@ -25,36 +26,7 @@ function generateSequence(labelType, distinctCount, totalEngagements) {
 }
 
 function playBeep() {
-  // Generates a WAV blob in memory — no external file, no network request.
-  // Square wave at 2700 Hz mimics the piezo buzzer used in shot timers (PACT, CED).
-  const sampleRate = 44100
-  const frequency = 2700
-  const holdTime = 0.18   // full volume (seconds)
-  const decayTime = 0.04  // linear ramp to silence
-  const totalSamples = Math.floor(sampleRate * (holdTime + decayTime))
-
-  const wavBuffer = new ArrayBuffer(44 + totalSamples * 2)
-  const view = new DataView(wavBuffer)
-  const write = (offset, str) => { for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i)) }
-
-  write(0, 'RIFF'); view.setUint32(4, 36 + totalSamples * 2, true)
-  write(8, 'WAVE'); write(12, 'fmt ')
-  view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true)
-  view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true)
-  view.setUint16(32, 2, true); view.setUint16(34, 16, true)
-  write(36, 'data'); view.setUint32(40, totalSamples * 2, true)
-
-  for (let i = 0; i < totalSamples; i++) {
-    const t = i / sampleRate
-    const square = Math.sign(Math.sin(2 * Math.PI * frequency * t))
-    const env = t < holdTime ? 1 : 1 - (t - holdTime) / decayTime
-    view.setInt16(44 + i * 2, Math.round(square * env * 28000), true)
-  }
-
-  const url = URL.createObjectURL(new Blob([wavBuffer], { type: 'audio/wav' }))
-  const audio = new Audio(url)
-  audio.onended = () => URL.revokeObjectURL(url)
-  audio.play()
+  new Audio(beepSound).play()
 }
 
 export default function App() {
