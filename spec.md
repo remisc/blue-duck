@@ -15,10 +15,10 @@ A mobile-first web app that generates randomized target engagement sequences for
 | F1 | Generate a random sequence of target labels for each drill |
 | F2 | Support two label types: **Capital Letters** (A, B, C…) or **Numbers** (1, 2, 3…) |
 | F3 | User selects the **number of distinct targets** (e.g., 3 targets → labels A, B, C) |
-| F4 | User selects the **total engagements** — how many shots appear in the sequence; minimum value is equal to the distinct target count (so every target can appear at least once) |
-| F5 | Every distinct target label must appear **at least once** in the sequence |
-| F5b | If `total engagements = distinct targets`, the sequence is a pure random permutation — each label appears exactly once |
-| F5c | If `total engagements > distinct targets`, the extra shots are distributed randomly across labels; the same label may appear multiple times beyond its guaranteed single appearance |
+| F4 | User selects the **total engagements** — how many shots appear in the sequence (minimum 1) |
+| F5 | If `total engagements < distinct targets`, the sequence is a random subset of `total engagements` unique targets — each selected target appears exactly once |
+| F5b | If `total engagements = distinct targets`, the sequence is a pure random permutation — every target appears exactly once |
+| F5c | If `total engagements > distinct targets`, every target appears at least once; extra shots are distributed randomly and a label may repeat |
 
 ### 2.2 Start Signal
 
@@ -43,7 +43,7 @@ A mobile-first web app that generates randomized target engagement sequences for
 |---|-------------|
 | F13 | Label type selector: Letters or Numbers |
 | F14 | Distinct target count input (minimum 2, reasonable maximum e.g. 26 for letters, 99 for numbers) |
-| F15 | Total engagements input — minimum value enforced to equal the current distinct target count |
+| F15 | Total engagements input — minimum value is 1 |
 | F16 | Configuration persists within the session so the user can regenerate without re-entering values |
 
 ---

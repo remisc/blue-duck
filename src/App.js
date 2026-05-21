@@ -16,13 +16,17 @@ function generateSequence(labelType, distinctCount, totalEngagements) {
     labelType === 'letters'
       ? Array.from({ length: distinctCount }, (_, i) => String.fromCharCode(65 + i))
       : Array.from({ length: distinctCount }, (_, i) => String(i + 1))
-  // Guarantee every target appears at least once
-  const base = shuffle(labels)
+
+  if (totalEngagements <= distinctCount) {
+    // Randomly pick totalEngagements unique targets
+    return shuffle(labels).slice(0, totalEngagements)
+  }
+  // Every target at least once, fill extras randomly
   const extras = Array.from(
     { length: totalEngagements - distinctCount },
     () => labels[Math.floor(Math.random() * labels.length)]
   )
-  return shuffle([...base, ...extras])
+  return shuffle([...shuffle(labels), ...extras])
 }
 
 function playBeep() {
@@ -33,6 +37,8 @@ export default function App() {
   const [labelType, setLabelType] = useState('letters')
   const [distinctCount, setDistinctCount] = useState(3)
   const [totalEngagements, setTotalEngagements] = useState(5)
+  const [distinctInput, setDistinctInput] = useState('3')
+  const [shotsInput, setShotsInput] = useState('5')
   const [sequence, setSequence] = useState(() => generateSequence('letters', 3, 5))
   const [waiting, setWaiting] = useState(false)
   const timerRef = useRef(null)
@@ -59,22 +65,41 @@ export default function App() {
     const clamped = Math.min(distinctCount, maxDistinct)
     setLabelType(type)
     setDistinctCount(clamped)
+    setDistinctInput(String(clamped))
     setSequence(generateSequence(type, clamped, totalEngagements))
   }
 
-  const handleDistinctCount = (raw) => {
-    const max = labelType === 'letters' ? 26 : 99
-    const n = Math.max(2, Math.min(parseInt(raw, 10) || 2, max))
-    // Shots must be at least as many as distinct targets
-    const shots = Math.max(totalEngagements, n)
-    setDistinctCount(n)
-    setTotalEngagements(shots)
-    setSequence(generateSequence(labelType, n, shots))
+  const handleDistinctChange = (raw) => {
+    setDistinctInput(raw)
+    const parsed = parseInt(raw, 10)
+    if (!isNaN(parsed)) {
+      const max = labelType === 'letters' ? 26 : 99
+      const n = Math.max(2, Math.min(parsed, max))
+      setDistinctCount(n)
+      setSequence(generateSequence(labelType, n, totalEngagements))
+    }
   }
 
-  const handleTotalEngagements = (raw) => {
-    const n = Math.max(distinctCount, parseInt(raw, 10) || distinctCount)
+  const handleDistinctBlur = () => {
+    const n = Math.max(2, parseInt(distinctInput, 10) || 2)
+    setDistinctCount(n)
+    setDistinctInput(String(n))
+    setSequence(generateSequence(labelType, n, totalEngagements))
+  }
+
+  const handleShotsChange = (raw) => {
+    setShotsInput(raw)
+    const parsed = parseInt(raw, 10)
+    if (!isNaN(parsed) && parsed >= 1) {
+      setTotalEngagements(parsed)
+      setSequence(generateSequence(labelType, distinctCount, parsed))
+    }
+  }
+
+  const handleShotsBlur = () => {
+    const n = Math.max(1, parseInt(shotsInput, 10) || 1)
     setTotalEngagements(n)
+    setShotsInput(String(n))
     setSequence(generateSequence(labelType, distinctCount, n))
   }
 
@@ -107,17 +132,19 @@ export default function App() {
               type="number"
               min={2}
               max={labelType === 'letters' ? 26 : 99}
-              value={distinctCount}
-              onChange={(e) => handleDistinctCount(e.target.value)}
+              value={distinctInput}
+              onChange={(e) => handleDistinctChange(e.target.value)}
+              onBlur={handleDistinctBlur}
             />
           </label>
           <label className="config-label">
             <span>Shots</span>
             <input
               type="number"
-              min={distinctCount}
-              value={totalEngagements}
-              onChange={(e) => handleTotalEngagements(e.target.value)}
+              min={1}
+              value={shotsInput}
+              onChange={(e) => handleShotsChange(e.target.value)}
+              onBlur={handleShotsBlur}
             />
           </label>
         </div>
