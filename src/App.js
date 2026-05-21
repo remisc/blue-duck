@@ -1,15 +1,27 @@
 import React, { useState, useRef, useCallback } from 'react'
 import './App.css'
 
+function shuffle(arr) {
+  const a = arr.slice()
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
 function generateSequence(labelType, distinctCount, totalEngagements) {
   const labels =
     labelType === 'letters'
       ? Array.from({ length: distinctCount }, (_, i) => String.fromCharCode(65 + i))
       : Array.from({ length: distinctCount }, (_, i) => String(i + 1))
-  return Array.from(
-    { length: totalEngagements },
+  // Guarantee every target appears at least once
+  const base = shuffle(labels)
+  const extras = Array.from(
+    { length: totalEngagements - distinctCount },
     () => labels[Math.floor(Math.random() * labels.length)]
   )
+  return shuffle([...base, ...extras])
 }
 
 function playBeep() {
@@ -62,12 +74,15 @@ export default function App() {
   const handleDistinctCount = (raw) => {
     const max = labelType === 'letters' ? 26 : 99
     const n = Math.max(2, Math.min(parseInt(raw, 10) || 2, max))
+    // Shots must be at least as many as distinct targets
+    const shots = Math.max(totalEngagements, n)
     setDistinctCount(n)
-    setSequence(generateSequence(labelType, n, totalEngagements))
+    setTotalEngagements(shots)
+    setSequence(generateSequence(labelType, n, shots))
   }
 
   const handleTotalEngagements = (raw) => {
-    const n = Math.max(1, parseInt(raw, 10) || 1)
+    const n = Math.max(distinctCount, parseInt(raw, 10) || distinctCount)
     setTotalEngagements(n)
     setSequence(generateSequence(labelType, distinctCount, n))
   }
@@ -109,7 +124,7 @@ export default function App() {
             <span>Shots</span>
             <input
               type="number"
-              min={1}
+              min={distinctCount}
               value={totalEngagements}
               onChange={(e) => handleTotalEngagements(e.target.value)}
             />
