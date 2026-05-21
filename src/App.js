@@ -25,17 +25,36 @@ function generateSequence(labelType, distinctCount, totalEngagements) {
 }
 
 function playBeep() {
-  const ctx = new (window.AudioContext || window.webkitAudioContext)()
-  const osc = ctx.createOscillator()
-  const gain = ctx.createGain()
-  osc.connect(gain)
-  gain.connect(ctx.destination)
-  osc.type = 'sine'
-  osc.frequency.value = 1100
-  gain.gain.setValueAtTime(0.9, ctx.currentTime)
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3)
-  osc.start(ctx.currentTime)
-  osc.stop(ctx.currentTime + 0.3)
+  // Generates a WAV blob in memory — no external file, no network request.
+  // Square wave at 2700 Hz mimics the piezo buzzer used in shot timers (PACT, CED).
+  const sampleRate = 44100
+  const frequency = 2700
+  const holdTime = 0.18   // full volume (seconds)
+  const decayTime = 0.04  // linear ramp to silence
+  const totalSamples = Math.floor(sampleRate * (holdTime + decayTime))
+
+  const wavBuffer = new ArrayBuffer(44 + totalSamples * 2)
+  const view = new DataView(wavBuffer)
+  const write = (offset, str) => { for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i)) }
+
+  write(0, 'RIFF'); view.setUint32(4, 36 + totalSamples * 2, true)
+  write(8, 'WAVE'); write(12, 'fmt ')
+  view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true)
+  view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true)
+  view.setUint16(32, 2, true); view.setUint16(34, 16, true)
+  write(36, 'data'); view.setUint32(40, totalSamples * 2, true)
+
+  for (let i = 0; i < totalSamples; i++) {
+    const t = i / sampleRate
+    const square = Math.sign(Math.sin(2 * Math.PI * frequency * t))
+    const env = t < holdTime ? 1 : 1 - (t - holdTime) / decayTime
+    view.setInt16(44 + i * 2, Math.round(square * env * 28000), true)
+  }
+
+  const url = URL.createObjectURL(new Blob([wavBuffer], { type: 'audio/wav' }))
+  const audio = new Audio(url)
+  audio.onended = () => URL.revokeObjectURL(url)
+  audio.play()
 }
 
 export default function App() {
@@ -142,7 +161,7 @@ export default function App() {
 
       <footer className="actions">
         <button className="btn-regen" onClick={() => regenerate()} disabled={waiting}>
-          Regenerate
+          ↻
         </button>
         <button className="btn-start" onClick={handleStart} disabled={waiting}>
           {waiting ? 'Ready…' : 'Start'}
